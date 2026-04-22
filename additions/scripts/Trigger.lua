@@ -9,6 +9,7 @@ MOD_MANAGER:AddMod(function(Api)
 --抉择池
 Api:SetChoicePool("Steve", {
  --新增抉择
+--github测试用
 
 
 
