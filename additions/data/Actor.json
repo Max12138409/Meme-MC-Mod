@@ -240,6 +240,16 @@
         }
     },
 
+    "COMBAT Missile Nu": {
+        "parent": "_COMBAT Missile Simple",
+        "unitActor": {
+            "resource": {
+                "name": "Missile_Nu"
+            },
+            "modelScale": 1
+        }
+    },
+
     "COMBAT Missile Missile_jinding": {
         "parent": "_COMBAT Missile Simple",
         "unitActor": {

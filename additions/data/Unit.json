@@ -125,6 +125,11 @@
            "baseUnit": "_COMBAT Missile"
        },
 
+       "COMBAT Missile Nu": 
+       {
+           "baseUnit": "_COMBAT Missile"
+       },
+
         "COMBAT Unit Steve Character":
         {
             "baseUnit": "_COMBAT Unit"
