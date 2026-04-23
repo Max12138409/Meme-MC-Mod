@@ -71,7 +71,10 @@ local TAG_missile_furou = "<size=300%><sprite name=mod_missile_furou></size>"--�
 local TAG_missile_tieding = "<size=300%><sprite name=mod_missile_tieding></size>"--铁锭
 local TAG_missile_changpian = "<size=300%><sprite name=mod_missile_changpian></size>"--唱片
 local TAG_missile_zhuren = "<size=300%><sprite name=mod_missile_zhuren></size>"--猪人
-local TAG_missile_jian = "<size=300%><sprite name=mod_missile_jian></size>"--箭
+local TAG_missile_gongjian = "<size=200%><sprite name=mod_missile_gongjian></size>"  --弓箭
+local TAG_missile_jian = "<size=200%><sprite name=mod_missile_jian></size>"--箭
+local TAG_missile_nu = "<size=200%><sprite name=mod_missile_nu></size>"  --弩
+
 
 
 --属性
@@ -94,7 +97,7 @@ local TAG_relic_jinding = "<size=200%><sprite name=mod_relic_jinding></size>"   
 local TAG_relic_end_eye = "<size=200%><sprite name=mod_relic_end_eye></size>"          --末影之眼
 local TAG_relic_longdan = "<size=200%><sprite name=mod_relic_longdan></size>"          --龙蛋
 --perk
-local TAG_perk_mianbao = "<size=200%><sprite name=mod_perk_mianbao></size>"            --面包
+local TAG_perk_mianbao = "<size=300%><sprite name=mod_perk_mianbao></size>"            --面包
 local TAG_perk_shengwu = "<size=200%><sprite name=mod_perk_shengwu></size>"            --生物
 local TAG_perk_hongshi = "<size=200%><sprite name=mod_perk_hongshi></size>"            --道具
 local TAG_perk_shiwu = "<size=200%><sprite name=mod_perk_shiwu></size>"                --食物
@@ -1252,7 +1255,7 @@ Api:RegisterPerk("Perk_JuDuJian", {
 Api:RegisterPerk("Perk_ZhiLiaoJian", {
     id = "Perk_ZhiLiaoJian",
     display_name = "治疗箭",
-    description = "当" .. TAG_missile_jian .. "命中敌人时，恢复自身10点生命值",
+    description = "当" .. TAG_missile_jian .. "命中敌人时，恢复自身" .. "<color=#47b05d>".."10</color>" .. "点生命值",
     flavor_text = "箭头涂抹了治愈药水，既能伤敌又能自愈",
     icon = DCEI.Texture("Perk_ZhiLiaoJian"),
     perk_type = "perk",
@@ -1263,16 +1266,94 @@ Api:RegisterPerk("Perk_ZhiLiaoJian", {
         if attack_data.missile_id == "Missile_Jian" then
             for i = 1, level do
                 -- 恢复自身10点生命值
-                combat_unit:ModifyCurrentHealth(100000)
+                combat_unit:ModifyCurrentHealth(10)
             end
         end
     end)
     end)
+--力量箭
+Api:RegisterPerk("Perk_JianDamage", {
+    id = "Perk_JianDamage",
+    display_name = "力量箭",
+    description = "当" .. TAG_missile_jian .. "命中敌人时，额外造成20点伤害",
+    flavor_text = "箭无虚发，穿透力极强",
+    icon = DCEI.Texture("Perk_JianDamage"),
+    perk_type = "perk",
+    rarity = "epic",
+}, function(combat_unit)
+    local name = "Perk_JianDamage"
+    combat_unit.Attack:RegisterOnMissileImpactCallback(name, function(level, attack_data, criminal, victim)
+        if attack_data.missile_id == "Missile_Jian" then
+            for i = 1, level do
+                victim:Damage(20, victim, {})
+            end
+        end
+    end)
+end)
 
+--弩箭升级
+Api:RegisterPerk("Perk_NuJian", {
+    id = "Perk_NuJian",
+    display_name = "弩箭升级",
+    description = "当" .. TAG_missile_gongjian .. "命中时额外发射两个" .. TAG_missile_jian,
+    flavor_text = "一箭三雕，百步穿杨",
+    icon = DCEI.Texture("Missile_Nu"),
+    perk_type = "perk",
+    rarity = "legendary",
+}, function(combat_unit)
+    local name = "Perk_NuJian"
+    combat_unit.Attack:RegisterOnMissileImpactCallback(name, function(level, attack_data, criminal, victim)
+        -- 检查命中的子弹ID是否为"弓箭"
+        if attack_data.missile_id == "Missile_GongJian" then
+            -- 根据perk等级发射相应数量的箭矢
+            for i = 1, level * 2 do
+                combat_unit.Attack:NewMissileAttack(victim, "Missile_Jian")
+            end
+        end
+    end)
+end)
+--错误方块
+Api:RegisterPerk("Perk_RandomHidden", {
+    id = "Perk_RandomHidden",
+    display_name = "��䶴䶶!#�䶶*&**",
+    description = "战斗开始时???@$%??@!!!",
+    flavor_text = "未知错误，未知错*?!@@?**....",
+    icon = DCEI.Texture("Perk_RandomHidden"),
+    perk_type = "perk",
+    rarity = "legendary",
+}, function(combat_unit)
+    local name = "Perk_RandomHidden"
+    combat_unit:RegisterOnCombatStartCallback(name, function(level, target)
+        -- 定义隐藏子弹列表
+        local hidden_missiles = {
+            "tieding",
+            "furou", 
+            "changpian",
+            "shazi",
+            "missile_jinding"
+        }
+        
+        -- 根据perk等级决定获得的子弹数量
+        local bullet_count = 3 * level
+        
+        -- 随机获得子弹
+        for i = 1, bullet_count do
+            local random_index = math.random(1, #hidden_missiles)
+            local selected_missile = hidden_missiles[random_index]
+            
+            -- 获取当前弹夹大小
+            local deck_size = #combat_unit.Attack:GetEmojiDeck()
+            
+            -- 永久添加子弹
+            combat_unit.Attack:AddEmojiToDeck(selected_missile, 1)
+            combat_unit:PlayAwardEmojiAnimation(selected_missile, 1)
 
-
-
-
+        end
+        
+        -- 更新弹夹UI
+        combat_unit:UpdateEmojiMagazineUi()
+    end)
+end)
 
 
 
@@ -1806,7 +1887,7 @@ Api:RegisterMissile("Missile_DLKL", {
 Api:RegisterMissile("Missile_GongJian", {
     id = "Missile_GongJian",
     display_name = "弓箭",
-    tip = "造成30点伤害，命中时发射一个箭矢",
+    tip = "造成20点伤害，命中时发射一个箭矢",
     flavor_text = "百步穿杨".."\n".." {========="..TAG_perk_gongju.."=========}",
     icon = DCEI.Texture("Missile_GongJian"),
     missile = DCEI.SimpleUnit("COMBAT Missile Gong_Jian"),
@@ -1814,7 +1895,7 @@ Api:RegisterMissile("Missile_GongJian", {
         DCEI.Sound("gongjian")
     },
     damage = function(attack_data, caster)
-        return 30
+        return 20
     end
     }, function(combat_unit)
     local name = "Missile_GongJian"
@@ -1842,6 +1923,31 @@ Api:RegisterMissile("Missile_Jian", {
         return 5
     end
     })
+
+-- 弩
+Api:RegisterMissile("Missile_Nu", {
+    id = "Missile_Nu",
+    display_name = "弩",
+    tip = "造成40点伤害，命中时发射3支箭",
+    flavor_text = "比弓更强大的远程武器，能够一次发射多支箭矢",
+    icon = DCEI.Texture("Missile_Nu"),
+    missile = DCEI.SimpleUnit("COMBAT Missile Nu"),
+    sounds = {
+        DCEI.Sound("gongjian")
+    },
+    damage = function(attack_data, caster)
+        return 40
+    end
+}, function(combat_unit)
+    local name = "Missile_Nu"
+    combat_unit.Attack:RegisterOnMissileImpactCallback(name, function(level, attack_data, caster, target)
+        if attack_data.missile_id == "Missile_Nu" then
+            for i = 1, 3 do
+                combat_unit.Attack:NewMissileAttack(target, "Missile_Jian")
+            end
+        end
+    end)
+end)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2747,6 +2853,8 @@ Api:CopyCharacter("naysayer", {
             "Relic_RenWu",
             "Relic_MuGun",
             --测试遗物
+
+            --"Relic_YanJing",
             --"Relic_XJHJ_SuiPian",
             --"Relic_JinDing",
             --"Relic_DaHuoShi",
@@ -2759,13 +2867,14 @@ Api:CopyCharacter("naysayer", {
          attack_ids = 
          {
              
-         --"Missile_ZhuYan",
-         --"Missile_ZhuYan",
-         --"Missile_TNT",
-         --"Missile_TNT",
-         --"Missile_MianBao",
-         --测试弹匣
+         "Missile_ZhuYan",
+         "Missile_ZhuYan",
+         "Missile_TNT",
+         "Missile_MianBao",
          "Missile_GongJian",
+         --测试弹匣
+         --"Missile_Nu", 
+         --"Missile_GongJian",
          --"Missile_DLKL"
          --"Missile_HaiTun",
          --"Missile_Zhu",
@@ -2799,14 +2908,14 @@ Api:CopyCharacter("naysayer", {
                    --
                    "Perk_HanBao",
                    "Perk_NongFu",
-                   "Perk_Power_Ji",
-                   "Perk_Power_Zhu",
                    --
                    "Perk_MuYang",
                    --
                    "Perk_GongJiang",
                    "Perk_JuDuJian",
                    "Perk_ZhiLiaoJian",
+                   "Perk_NuJian", 
+                   "Perk_JianDamage", 
                 },
             ------------------------------原能力组
                 {
@@ -2848,7 +2957,7 @@ Api:CopyCharacter("naysayer", {
                 --"heal_on_damage_legendary",--盛宴
                 --回血
                 "health_regen",--获得25回血
-                "health_regen_percentage",--硬汉
+                --"health_regen_percentage",--硬汉
                 },
             -----------------------------子弹组
             {
@@ -2856,6 +2965,9 @@ Api:CopyCharacter("naysayer", {
                 "Perk_Power_MianBao",
                 "Perk_Power_TNT",
                 "Perk_Power_LongXi",
+                "Perk_Power_Ji",
+                "Perk_Power_Zhu",
+                "Perk_RandomHidden", --随机隐藏
             },    
     
             },
