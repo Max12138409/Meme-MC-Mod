@@ -10,14 +10,14 @@
                 "resource": {
                     "name": "custom_star"
                 },
-                "modelScale": 0.25
+                "modelScale": 0.15
             }
         },
         "COMBAT Unit Mod Summon": {
             "parent": "COMBAT Unit Mod Template",
             "unitActor": {
                 "resource": {
-                    "name": "character_b"
+                    "name": "summon_creepe"
                 },
                 "events": [
                     {
@@ -35,7 +35,7 @@
                         ]
                     }
                 ],
-                "modelScale": 1
+                "modelScale": 0.08
             }
         },
         "COMBAT Unit Mod Summon Death Fx": {
@@ -52,13 +52,13 @@
                                     "particleProperties": [
                                         {
                                             "setTexture": {
-                                                "spriteName": "character_b"
+                                                "spriteName": "summon_creepe"
                                             }
                                         },
                                         {
                                             "particleSubSystem": 3,
                                             "setTexture": {
-                                                "spriteName": "character_b"
+                                                "spriteName": "summon_creepe"
                                             }
                                         }
                                     ]

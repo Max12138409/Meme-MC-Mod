@@ -1,7 +1,7 @@
 MOD_MANAGER:AddMod(function(Api)
 --金锭子弹未实现
 --猪灵专属能力卡未实现
-
+--修复所有BOSS子弹
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -830,6 +830,7 @@ Api:RegisterRelic("jidezhizhu", {
 
 
 
+
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1275,7 +1276,7 @@ Api:RegisterPerk("Perk_ZhiLiaoJian", {
 Api:RegisterPerk("Perk_JianDamage", {
     id = "Perk_JianDamage",
     display_name = "力量箭",
-    description = "当" .. TAG_missile_jian .. "命中敌人时，额外造成20点伤害",
+    description = "当" .. TAG_missile_jian .. "命中敌人时，额外造成" .. "<color=#47b05d>".."20</color>" .. "点伤害",
     flavor_text = "箭无虚发，穿透力极强",
     icon = DCEI.Texture("Perk_JianDamage"),
     perk_type = "perk",
@@ -1287,6 +1288,25 @@ Api:RegisterPerk("Perk_JianDamage", {
             for i = 1, level do
                 victim:Damage(20, victim, {})
             end
+        end
+    end)
+end)
+--代达罗斯
+Api:RegisterPerk("Perk_UltimateArrowRain", {
+    id = "Perk_UltimateArrowRain",
+    display_name = "代达罗斯",
+    description = "释放大招时额外发射" .. "<color=#47b05d>".."5</color>" .. "支".. TAG_missile_jian,
+    flavor_text = "箭如雨下，势不可挡",
+    icon = DCEI.Texture("Perk_UltimateArrowRain"),
+    perk_type = "perk",
+    rarity = "epic",
+}, function(combat_unit)
+    local name = "Perk_UltimateArrowRain"
+    -- 注册大招释放回调函数
+    combat_unit.Attack:RegisterOnUltimateLaunchCallback(name, function(level, caster, target)
+        -- 发射五个箭矢
+        for i = 1, 5 do
+            combat_unit.Attack:NewMissileAttack(target, "Missile_Jian")
         end
     end)
 end)
@@ -1323,7 +1343,7 @@ Api:RegisterPerk("Perk_RandomHidden", {
     rarity = "legendary",
 }, function(combat_unit)
     local name = "Perk_RandomHidden"
-    combat_unit:RegisterOnCombatStartCallback(name, function(level, target)
+    combat_unit:RegisterOnBeforeCombatStartCallback(name, function(level)
         -- 定义隐藏子弹列表
         local hidden_missiles = {
             "tieding",
@@ -1359,7 +1379,7 @@ Api:RegisterPerk("Perk_HongShi", {
     id = "Perk_HongShi",
     display_name = "简易活塞虫",
     description = "当你的" .. TAG_perk_hongshi .. "命中敌人时，随机从" .. TAG_perk_shiwu .. TAG_perk_gongju .. TAG_perk_shengwu .. TAG_relic_zuanshi
-    .. "的额外效果中随机选择一个触发两次",
+    .. "的额外效果中随机选择一个" .. "<color=#47b05d>".."触发两次</color>",
     flavor_text = "红石是科技的核心，也是爆炸的艺术",
     icon = DCEI.Texture("Perk_HongShi"),
     perk_type = "perk",
@@ -1401,6 +1421,118 @@ Api:RegisterPerk("Perk_HongShi", {
         end
     end)
 end)
+--黑火药
+Api:RegisterPerk("Perk_TNT_Power", {
+    id = "Perk_TNT_Power",
+    display_name = "黑火药",
+    description = "当" .. TAG_missile_tnt .. "命中时，额外给予你" .. "<color=#47b05d>".."1</color>"..Api.GameMechanicTags.TAG.attack,
+    flavor_text = "爆炸的力量！",
+    icon = DCEI.Texture("Perk_TNT_Power"),
+    perk_type = "perk",
+    rarity = "rare",
+}, function(combat_unit)
+    local name = "Perk_TNT_Power"
+    combat_unit.Attack:RegisterOnMissileImpactCallback(name, function(level, attack_data, criminal, victim)
+        if attack_data.missile_id == "Missile_TNT" then
+            for i = 1, level do
+                combat_unit:ModifyAttribute("attack", 1, false)
+            end
+        end
+    end)
+end)
+--二踢脚
+Api:RegisterPerk("Perk_ErTiJiao", {
+    id = "Perk_ErTiJiao",
+    display_name = "鞭炮",
+    description = "当" .. TAG_missile_tnt .. "命中时，有" .. "<color=#47b05d>".."50%</color>" .. "概率再发射一个" .. TAG_missile_tnt,
+    flavor_text = "一响接一响，响响都响亮！",
+    icon = DCEI.Texture("Perk_ErTiJiao"),
+    perk_type = "perk",
+    rarity = "epic",
+}, function(combat_unit)
+    local name = "Perk_ErTiJiao"
+    combat_unit.Attack:RegisterOnMissileImpactCallback(name, function(level, attack_data, criminal, victim)
+        if attack_data.missile_id == "Missile_TNT" then
+            -- 生成0-1之间的随机数，如果小于0.5则触发效果
+            local random = math.random(0, 1)
+            if random < 0.5 then
+                for i = 1, level do
+                    combat_unit.Attack:NewMissileAttack(victim, "Missile_TNT")
+                end
+            end
+        end
+    end)
+end)
+
+--火力支援
+Api:RegisterPerk("Relic_CustomSummon", {
+    id = "Relic_CustomSummon",
+    display_name = "火力支援",
+    description = "战斗开始时召唤1只苦力怕协助战斗",
+    rarity = "legendary",
+    icon = DCEI.Texture("Relic_CustomSummon"),
+    perk_type = "perk",
+    flavor_text = "只要火药到位，跟谁干不是干",
+     modify_attributes = {
+        summon_speed = 1.0,  -- 添加这一行，设置初始攻击速度为1.0
+    },
+}, function(combat_unit)
+    local name = "Relic_CustomSummon"
+    combat_unit:RegisterOnCombatStartCallback(name, function(level, target)
+        -- 召唤3个custom summon
+        for i = 1, level do
+            local summon_data = {
+                unit_type = DCEI.Unit("COMBAT Unit Mod Summon"),
+                cache_key = "summons_data",
+                index_key = "summons_index",
+            }
+            Api:CreateSummon(combat_unit, summon_data)
+            
+            -- 标记召唤物为准备攻击状态
+            local index = combat_unit[summon_data.index_key]
+            combat_unit[summon_data.cache_key][index].ready = true
+        end
+        
+        -- 设置召唤物攻击
+        local spawn_time = 0.2
+        Api:RunTimer(function()
+            local attack = {
+                attack_id = "attack_star",
+                damage = combat_unit:GetBoundedAttribute("attack") * 1.2,
+                attack_speed_key = "summon_speed",
+                hit_sound = DCEI.Sound("smh_keg_ultimate_impact"),
+                cache_key = "summons_data",
+                index_key = "summons_index",
+            }
+            Api:StartSummonAttacking(combat_unit, attack)
+        end, spawn_time)
+    end)
+end)
+-- 召唤物发射的子弹
+Api:RegisterMissile("attack_star", {
+    id = "attack_star",
+    display_name = "Star",
+    tip = "Deals damage",
+    icon = DCEI.Texture("custom_star"),
+    missile = DCEI.SimpleUnit("COMBAT Missile Custom Star"),
+    impact = DCEI.SimpleUnit("COMBAT Unit Simple HitFx"),
+    flight_time = 1,
+    spin_speed = -180,
+})
+
+-- 自定义属性，用于设置召唤物攻击速度
+Api:RegisterAttribute({
+    id = "summon_speed",
+    display_name = "苦力怕小队 队员数量：",
+    description = "你当前雇佣的苦力怕数量",
+    icon = DCEI.Texture("Relic_CustomSummon"),
+    display_type = Api.DisplayType.Float,
+    is_neutral = true,
+    flavor_text = "嘶~嘶嘶",
+})
+
+
+
 
 
 
@@ -1554,7 +1686,7 @@ Api:RegisterPerk("Perk_Power_Ji", {
 --猪补充包
 Api:RegisterPerk("Perk_Power_Zhu", {
         id = "Perk_Power_Zhu",
-        display_name = "小猪乔治",
+        display_name = "乔治",
         description = "获得"..TAG_missile_zhu.."\n".."<color=#47b05d>".."你的</color>"..TAG_shuxing_baoshidu.."<color=#47b05d>".."不再在战斗结束后归零  </color>"..TAG_shuxing_baoshidu.."<color=#47b05d>".."饱食度效果有概率触发两次</color>",
         icon = DCEI.Texture("Missile_Zhu"),
         perk_type = "missile",
@@ -2901,7 +3033,7 @@ Api:CopyCharacter("naysayer", {
             "Relic_RenWu",
             "Relic_MuGun",
             --测试遗物
-
+            --"Relic_CustomSummon", 
             --"Relic_YanJing",
             --"Relic_XJHJ_SuiPian",
             --"Relic_JinDing",
@@ -2950,7 +3082,7 @@ Api:CopyCharacter("naysayer", {
                    "Perk_HeTun",
                    "Perk_KoShui",
                    "Perk_XingYun",
-                   "Perk_JingJi",
+                   --"Perk_JingJi",
                    --
                    "Perk_HanBao",
                    "Perk_NongFu",
@@ -2962,7 +3094,14 @@ Api:CopyCharacter("naysayer", {
                    "Perk_ZhiLiaoJian",
                    "Perk_NuJian", 
                    "Perk_JianDamage", 
+                   "Perk_UltimateArrowRain", 
+                   --
                    "Perk_HongShi", 
+                   --TNT
+                   "Perk_TNT_Power", 
+                   "Perk_ErTiJiao",
+                   --
+                   "Relic_CustomSummon", 
                 },
             ------------------------------原能力组
                 {
