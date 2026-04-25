@@ -1,5 +1,22 @@
 {
     "units": {
+
+
+
+        
+        "COMBAT Missile Custom Star": {
+            "baseUnit": "_COMBAT Missile"
+        },
+        "COMBAT Unit Mod Summon": {
+            "baseUnit": "_COMBAT Missile"
+        },
+        "COMBAT Unit Mod Summoner": {
+            "baseUnit": "_COMBAT Missile"
+        },
+
+
+
+
        "COMBAT Missile Tnts":
        {
            "baseUnit": "_COMBAT Missile"
