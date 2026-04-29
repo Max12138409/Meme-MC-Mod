@@ -501,16 +501,10 @@ Api:RegisterRelic("Relic_XJHJ_Ding", {
 Api:RegisterRelic("Relic_CSM", {
         id = "Relic_CSM",
         display_name = "下界传送门",
-        description ="战斗开始时从下界随机召唤1~3只"..TAG_missile_zhuren.."协助你作战，获得".."<color=#47b05d>".."3</color>"..Api.GameMechanicTags.TAG.armor.."<color=#47b05d>".."1</color>"..Api.GameMechanicTags.TAG.attack..
-        "<color=#47b05d>".."25</color>"..Api.GameMechanicTags.TAG.energy_regen,
+        description ="战斗开始时从下界随机召唤1~3只"..TAG_missile_zhuren.."协助你作战。",
         icon = DCEI.Texture("Relic_CSM"),
         rarity = "combo",
         flavor_text = "传送门,每个故事都少不了它，下界合金套，烈焰粉，还有主世界的恶魂与猪人都归功于它",
-        modify_attributes = {
-            block = 3,
-            attack = 1,               
-            energy_per_second = 25,                  
-        } 
         },function(combat_unit)
         local name = "Relic_CSM"
         combat_unit:RegisterOnCombatStartCallback(name, function (level, target)
@@ -827,6 +821,33 @@ Api:RegisterRelic("jidezhizhu", {
         end
     end)
     end, false)
+-- 金苹果
+Api:RegisterRelic("Relic_CombatPrep", {
+    id = "Relic_CombatPrep",
+    display_name = "金苹果",
+    description = "战斗开始后前3秒获得".."<color=#47b05d>".."300</color>"..Api.GameMechanicTags.TAG.health_regen.."和"
+    .."<color=#47b05d>".."100</color>"..Api.GameMechanicTags.TAG.energy_regen,
+    icon = DCEI.Texture("Relic_CombatPrep"),
+    rarity = "legendary",
+    flavor_text = "金苹果，这是亚当和夏娃吃的那颗吗？",
+    behavior = {
+        description = "战斗准备",
+        buff_bar_icon = DCEI.Texture("Relic_CombatPrep"),
+        modify_attributes = {
+            health_per_second = 300,
+            energy_per_second = 100,
+        },
+        duration = 3,
+        is_positive = true,
+    },
+}, function(combat_unit)
+    local name = "Relic_CombatPrep"
+    combat_unit:RegisterOnBeforeCombatStartCallback(name, function(level)
+        for i = 1, level do
+            Api.PerkBehaviorSystem:ApplyPerkBehaviorToSelf(combat_unit, name)
+        end
+    end)
+end,true)
 
 
 
@@ -1464,14 +1485,15 @@ Api:RegisterPerk("Perk_ErTiJiao", {
     end)
 end)
 
---自定义召唤遗物
-Api:RegisterRelic("Relic_CustomSummon", {
+--火力支援
+Api:RegisterPerk("Relic_CustomSummon", {
     id = "Relic_CustomSummon",
-    display_name = "召唤师契约",
-    description = "战斗开始时召唤3个custom summon协助战斗",
+    display_name = "火力支援",
+    description = "战斗开始时召唤1只苦力怕协助战斗",
     rarity = "legendary",
     icon = DCEI.Texture("Relic_CustomSummon"),
-    flavor_text = "契约已签订，召唤物将为你而战",
+    perk_type = "perk",
+    flavor_text = "只要火药到位，跟谁干不是干",
      modify_attributes = {
         summon_speed = 1.0,  -- 添加这一行，设置初始攻击速度为1.0
     },
@@ -1479,7 +1501,7 @@ Api:RegisterRelic("Relic_CustomSummon", {
     local name = "Relic_CustomSummon"
     combat_unit:RegisterOnCombatStartCallback(name, function(level, target)
         -- 召唤3个custom summon
-        for i = 1, 3 do
+        for i = 1, level do
             local summon_data = {
                 unit_type = DCEI.Unit("COMBAT Unit Mod Summon"),
                 cache_key = "summons_data",
@@ -1497,7 +1519,7 @@ Api:RegisterRelic("Relic_CustomSummon", {
         Api:RunTimer(function()
             local attack = {
                 attack_id = "attack_star",
-                damage = combat_unit:GetBoundedAttribute("attack") * 3,
+                damage = combat_unit:GetBoundedAttribute("attack") * 1.2,
                 attack_speed_key = "summon_speed",
                 hit_sound = DCEI.Sound("smh_keg_ultimate_impact"),
                 cache_key = "summons_data",
@@ -1522,13 +1544,99 @@ Api:RegisterMissile("attack_star", {
 -- 自定义属性，用于设置召唤物攻击速度
 Api:RegisterAttribute({
     id = "summon_speed",
-    display_name = "Summon Speed",
-    description = "How many fast your summons will attack",
-    icon = DCEI.Texture("character_a"),
+    display_name = "苦力怕小队 队员数量：",
+    description = "你当前雇佣的苦力怕数量",
+    icon = DCEI.Texture("Relic_CustomSummon"),
     display_type = Api.DisplayType.Float,
     is_neutral = true,
-    flavor_text = "This is flavor text for Summon Speed attribute",
+    flavor_text = "嘶~嘶嘶",
 })
+
+-- 野猎指南
+Api:RegisterPerk("Perk_FoodBioHit", {
+    id = "Perk_FoodBioHit",
+    display_name = "野猎指南",
+    description = "每当你的" .. TAG_perk_shiwu .. "或" .. TAG_perk_shengwu .. "子弹命中敌人，在战斗结束后获得等同于命中次数之和的".."<color=#47b05d>".."2倍最大生命值</color>",
+    flavor_text = "丰富的食物和猎物让你变得更加强壮",
+    icon = DCEI.Texture("Perk_FoodBioHit"),
+    perk_type = "perk",
+    rarity = "rare",
+}, function(combat_unit)
+    local name = "Perk_FoodBioHit"
+    local hit_count = 0
+    
+    -- 注册命中回调函数
+    combat_unit.Attack:RegisterOnMissileImpactCallback(name, function(level, attack_data, caster, target)
+        -- 检查是否是食物或生物类型的子弹
+        if attack_data.missile_id == "Missile_ZhuYan" or attack_data.missile_id == "Missile_MianBao" or
+           attack_data.missile_id == "Missile_NiuRou" or attack_data.missile_id == "Missile_JXC" or 
+           attack_data.missile_id == "luobo" or attack_data.missile_id == "tudou" or
+           attack_data.missile_id == "furou" or attack_data.missile_id == "Missile_Zhu" or
+           attack_data.missile_id == "Missile_JSZR" or attack_data.missile_id == "Missile_HaiGui" or 
+           attack_data.missile_id == "Missile_HaiTun" or attack_data.missile_id == "Missile_DLKL" or
+           attack_data.missile_id == "Missile_Ji" then
+            -- 增加命中计数
+            hit_count = hit_count + 1
+        end
+    end)
+    
+    -- 注册战斗结束回调函数
+    combat_unit:RegisterOnCombatEndCallback(name, function(level, target)
+        -- 根据命中次数给予生命值奖励
+        if hit_count > 0 then
+            local health_bonus = hit_count * 2
+            combat_unit.run_instance:ModifySavedPerkDataAttributes("health_maximum", health_bonus)
+            -- 重置命中计数
+            hit_count = 0
+        end
+    end)
+end)
+-- 战前动员
+Api:RegisterPerk("Perk_EnergyOverload", {
+    id = "Perk_EnergyOverload",
+    display_name = "战前动员",
+    description = "战斗开始后前5秒获得".."<color=#47b05d>".."100</color>"..Api.GameMechanicTags.TAG.energy_regen.."，之后获得".."<color=red>".."-125</color>"..Api.GameMechanicTags.TAG.energy_regen,
+    icon = DCEI.Texture("Perk_EnergyOverload"),
+    perk_type = "perk",
+    rarity = "common",
+    flavor_text = "过载的能量既能带来力量，也可能导致毁灭",
+    behavior = {
+        description = "能量过载",
+        buff_bar_icon = DCEI.Texture("Perk_EnergyOverload"),
+        modify_attributes = {
+            energy_per_second = 100,
+        },
+        duration = 5,
+        is_positive = true,
+    },
+}, function(combat_unit)
+    local name = "Perk_EnergyOverload"
+    local has_applied_debuff = false
+    
+    -- 战斗开始时应用初始buff
+    combat_unit:RegisterOnCombatStartCallback(name, function(level, target)
+        -- 应用初始200能量恢复
+        Api.PerkBehaviorSystem:ApplyPerkBehaviorToSelf(combat_unit, name)
+        
+        -- 设置3秒后切换为debuff
+        Api:RunTimer(function()
+            if not has_applied_debuff then
+                -- 应用-300能量恢复的debuff
+                combat_unit:ModifyAttribute("energy_per_second", -125, false)
+                has_applied_debuff = true
+            end
+        end, 3)
+    end)
+    
+    -- 战斗结束时清除所有效果
+    combat_unit:RegisterOnCombatEndCallback(name, function(level, target)
+        if has_applied_debuff then
+            -- 移除debuff
+            combat_unit:ModifyAttribute("energy_per_second", 300, false)
+        end
+        has_applied_debuff = false
+    end)
+end)
 
 
 
@@ -2203,11 +2311,11 @@ Api:RegisterBoss({
         ultimate_id = "BosUnlKu",
     },
     attributes = {
-        health_maximum = 4500,
-        attack = 30,
-        energy_maximum = 1000,
-        energy_per_second = 200,
-        ultimate_damage = 0.4,
+        health_maximum = 4000,
+        attack = 24,
+        energy_maximum = 1400,
+        energy_per_second = 160,
+        ultimate_damage = 0.38,
     },
     perks = {
         boss_changpian = 1,
@@ -2258,10 +2366,12 @@ Api:RegisterBoss({
         ultimate_id = "BosUnlJin",
     },
     attributes = {
-        health_maximum = 3500,
+        health_maximum = 15000,
         attack = 35,
+        attack_speed = 1.1,
         energy_maximum = 2000,
         energy_per_second = 200,
+        income = 50,
     },
     perks = {
         taojin = 1,
@@ -2819,7 +2929,7 @@ Api:RegisterMissile("missile_jinding", {
         DCEI.Sound("chidongxi")
     },
     damage = function(attack_data, caster)
-        return 0.5*caster:GetBoundedAttribute("energy_per_second")
+        return 2*caster:GetBoundedAttribute("income")
     end
     },function (combat_unit)
         local name = "missile_jinding"
@@ -2868,7 +2978,7 @@ Api:RegisterPerk("shinaozhe", {
 Api:RegisterPerk("huoyaohexin", {
     id = "huoyaohexin",
     display_name = "火药核心",
-    description = "生命值低于".."<color=red>".."1200</color>".."时开启自毁模式！", 
+    description = "生命值低于".."<color=red>".."800</color>".."时开启自毁模式！", 
     flavor_text = "献出一切",
     icon = DCEI.Texture("huoyaohexin"),
     perk_type = "perk",
@@ -2877,7 +2987,7 @@ Api:RegisterPerk("huoyaohexin", {
         local name = "huoyaohexin"
         local jishu = 0
         combat_unit.Attack:RegisterOnMissileImpactCallback(name, function(level,attack_data,caster,target)
-			    if combat_unit:GetCurrentHealth() < 1000 then
+			    if combat_unit:GetCurrentHealth() < 800 then
                     for i = 1, level do
                         combat_unit.Attack:NewUltimateAttack(target, true)
                     end
@@ -3002,7 +3112,7 @@ Api:CopyCharacter("naysayer", {
         icon_high_resolution = DCEI.Texture("steve_large"),
         unit = DCEI.Unit("COMBAT Unit Steve Character"),
         attributes = {
-        health_maximum = 2100,          --hp
+        health_maximum = 2200,          --hp
         energy_maximum = 2000,          --最大能量
         energy_per_second = 120,         --能量恢复
         attack = 20,
@@ -3032,7 +3142,8 @@ Api:CopyCharacter("naysayer", {
             "Relic_RenWu",
             "Relic_MuGun",
             --测试遗物
-            "Relic_CustomSummon", 
+            --"Relic_CombatPrep", 
+            --"Relic_CustomSummon", 
             --"Relic_YanJing",
             --"Relic_XJHJ_SuiPian",
             --"Relic_JinDing",
@@ -3099,6 +3210,10 @@ Api:CopyCharacter("naysayer", {
                    --TNT
                    "Perk_TNT_Power", 
                    "Perk_ErTiJiao",
+                   --
+                   "Relic_CustomSummon", 
+                   "Perk_FoodBioHit", 
+                   "Perk_EnergyOverload", 
                 },
             ------------------------------原能力组
                 {
