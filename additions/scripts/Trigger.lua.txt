@@ -9,7 +9,7 @@ MOD_MANAGER:AddMod(function(Api)
 --抉择池
 Api:SetChoicePool("Steve", {
  --新增抉择
---github测试用
+
 
 
 
@@ -74,6 +74,10 @@ local TAG_missile_zhuren = "<size=300%><sprite name=mod_missile_zhuren></size>"-
 local TAG_missile_gongjian = "<size=200%><sprite name=mod_missile_gongjian></size>"  --弓箭
 local TAG_missile_jian = "<size=200%><sprite name=mod_missile_jian></size>"--箭
 local TAG_missile_nu = "<size=200%><sprite name=mod_missile_nu></size>"  --弩
+local TAG_missile_lieyandan = "<size=200%><sprite name=mod_missile_lieyandan></size>"  --烈焰弹
+local TAG_missile_zsj = "<size=200%><sprite name=mod_missile_zsj></size>"   -- 钻石剑
+local TAG_missile_caofangkuai = "<size=200%><sprite name=mod_missile_cfk></size>"--草方块
+
 
 
 
@@ -316,11 +320,11 @@ local TAG_geng_chuanshanjia = "<size=900%><sprite name=geng_chuanshanjia></size>
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --自定义属性
 --鸡计数器
-local ji_quest_max = 150
+local ji_quest_max = 300
 Api:RegisterAttribute({
     id = "JS_ji",
     display_name = "孵化进度",
-    description = "孵化进度达到100时随机孵化一枚蛋",
+    description = "孵化进度达到300时随机孵化一枚蛋",
     icon = DCEI.Texture("Missile_Ji"),
     display_type = Api.DisplayType.Integer,
     is_neutral = true, -- if true, font color will always be white
@@ -501,14 +505,14 @@ Api:RegisterRelic("Relic_XJHJ_Ding", {
 Api:RegisterRelic("Relic_CSM", {
         id = "Relic_CSM",
         display_name = "下界传送门",
-        description ="战斗开始时从下界随机召唤1~3只"..TAG_missile_zhuren.."协助你作战。",
+        description ="战斗开始时从下界召唤1只"..TAG_missile_zhuren.."协助你作战。",
         icon = DCEI.Texture("Relic_CSM"),
         rarity = "combo",
         flavor_text = "传送门,每个故事都少不了它，下界合金套，烈焰粉，还有主世界的恶魂与猪人都归功于它",
         },function(combat_unit)
         local name = "Relic_CSM"
         combat_unit:RegisterOnCombatStartCallback(name, function (level, target)
-            local randoms = math.random(1,3)
+            local randoms = math.random(1,1)
             level = randoms
             for i=1,level do   --level是重复执行的次数
                 combat_unit.Attack:AddEmojiToDeck("Missile_JSZR", 1)
@@ -681,7 +685,7 @@ Api:RegisterRelic("Relic_BuSiTuTeng", {
         id = "Relic_BuSiTuTeng",
         display_name = "不死图腾",
         flavor_text = "感谢唤魔者开源",
-        description = "当你生命值小于".."<color=red>".."500</color>".."时".."立刻获得".."<color=#47b05d>".."500</color>"
+        description = "当你生命值小于".."<color=red>".."600</color>".."时".."立刻获得".."<color=#47b05d>".."500</color>"
         ..Api.GameMechanicTags.TAG.health.."<color=#47b05d>".."200</color>"..Api.GameMechanicTags.TAG.health_regen.."和".."<color=#47b05d>".."300</color>"..Api.GameMechanicTags.TAG.energy_regen
         .."持续".."<color=red>".."</color>".."5秒",
         icon = DCEI.Texture("Relic_BuSiTuTeng"),
@@ -702,7 +706,7 @@ Api:RegisterRelic("Relic_BuSiTuTeng", {
         local jishu = 0
         combat_unit.Attack:RegisterOnMissileHitCallback(name, function(level,attack_data,caster,target)
             if jishu == 0 then
-			    if combat_unit:GetCurrentHealth() < 500 then
+			    if combat_unit:GetCurrentHealth() < 600 then
                     for i = 1, level do
                         Api.PerkBehaviorSystem:ApplyPerkBehaviorToSelf(target,name)
                         jishu = jishu + 1
@@ -796,7 +800,7 @@ Api:RegisterRelic("Relic_MianBao", {
     end)
     end)
 
---AI代码生成测试
+--代码测试
 -- 饥饿的蜘蛛
 Api:RegisterRelic("jidezhizhu", {
     id = "jidezhizhu",
@@ -848,6 +852,20 @@ Api:RegisterRelic("Relic_CombatPrep", {
         end
     end)
 end,true)
+--红石块
+Api:RegisterRelic("Relic_hongshi", {
+    id = "Relic_hongshi",
+    display_name = "再生护符",
+    description = "获得".."<color=#47b05d>".."20</color>"..Api.GameMechanicTags.TAG.energy_regen.."和".."<color=#47b05d>".."10</color>"..Api.GameMechanicTags.TAG.health_regen,
+    icon = DCEI.Texture("Relic_hongshi"),
+    rarity = "rare",
+    flavor_text = "持续释放红石信号，可以用来建造某些东西",
+    modify_attributes = {
+        energy_per_second = 20,
+        health_per_second = 10,
+    },
+})
+
 
 
 
@@ -896,7 +914,7 @@ Api:RegisterPerk("Perk_MuTi", {
 Api:RegisterPerk("Perk_ZhuLuan", {
         id = "Perk_ZhuLuan",
         display_name = "孕育蛛卵",
-        description = "弹匣中每有一个蜘蛛眼，战斗开始时便获得".."<color=#47b05d>".."10</color>"..Api.GameMechanicTags.TAG.health_regen, 
+        description = "弹匣中每有一个蜘蛛眼，战斗开始时便获得".."<color=#47b05d>".."5</color>"..Api.GameMechanicTags.TAG.health_regen, 
         flavor_text = "你什么时候知道自己该搬家了？\n".."发现蜘蛛卵的时候...",
         icon = DCEI.Texture("Perk_ZhuLuan"),
         perk_type = "perk",
@@ -907,7 +925,7 @@ Api:RegisterPerk("Perk_ZhuLuan", {
                 local emoji_deck = combat_unit.Attack:GetEmojiDeck()
                 for k, v in pairs(emoji_deck) do
                     if v.emoji_id == "Missile_ZhuYan" then
-                        combat_unit:ModifyAttribute("health_per_second", 10, false)
+                        combat_unit:ModifyAttribute("health_per_second", 5, false)
                     end
                 end
             end)
@@ -917,7 +935,7 @@ Api:RegisterPerk("Perk_ZhuLuan", {
 Api:RegisterPerk("Perk_NuWu", {
         id = "Perk_NuWu",
         display_name = "女巫赐福",
-        description = "蜘蛛眼每命中一次，则战斗结束后给予双倍的"..Api.GameMechanicTags.TAG.health,
+        description = "蜘蛛眼每命中一次，战斗结束后获得2点"..Api.GameMechanicTags.TAG.health,
         flavor_text = "哼哼~哼哼蛤·哼！",
         icon = DCEI.Texture("Perk_NuWu"),
         perk_type = "perk",
@@ -1005,7 +1023,7 @@ Api:RegisterPerk("Perk_JiPo3", {
         display_name = "急迫Ⅲ ",
         description = "获得".."<color=#47b05d>".."15%</color>"
         ..Api.GameMechanicTags.TAG.attack_speed.."并且在战斗结束后"
-        .."获得".."<color=#47b05d>".."5%</color>"..Api.GameMechanicTags.TAG.luck,     --幸运
+        .."获得".."<color=#47b05d>".."3%</color>"..Api.GameMechanicTags.TAG.luck,     --幸运
         flavor_text = "我听见了【强运】的回响！",
         icon = DCEI.Texture("Perk_JiPo"),
         perk_type = "perk",
@@ -1016,7 +1034,7 @@ Api:RegisterPerk("Perk_JiPo3", {
         }, function(combat_unit)
             local name = "Perk_JiPo3"
             combat_unit:RegisterOnCombatEndCallback(name, function (level, target)
-                combat_unit.run_instance:ModifySavedPerkDataAttributes("luck", 0.05*level)
+                combat_unit.run_instance:ModifySavedPerkDataAttributes("luck", 0.03*level)
             end)
         end)
     
@@ -1223,7 +1241,7 @@ Api:RegisterPerk("Perk_MuYang", {
                 end)
             end)
 
---AI代码生成测试
+--代码测试
 --挖矿药水
 Api:RegisterPerk("Perk_GongJiang", {
     id = "Perk_GongJiang",
@@ -1395,24 +1413,45 @@ Api:RegisterPerk("Perk_RandomHidden", {
         combat_unit:UpdateEmojiMagazineUi()
     end)
 end)
+
 -- 活塞虫
 Api:RegisterPerk("Perk_HongShi", {
     id = "Perk_HongShi",
     display_name = "简易活塞虫",
-    description = "当你的" .. TAG_perk_hongshi .. "命中敌人时，随机从" .. TAG_perk_shiwu .. TAG_perk_gongju .. TAG_perk_shengwu .. TAG_relic_zuanshi
-    .. "的额外效果中随机选择一个" .. "<color=#47b05d>".."触发两次</color>",
+    description = "当你的" .. TAG_perk_hongshi .. "命中敌人时，随机从" .. TAG_perk_shiwu .. TAG_perk_gongju .. TAG_perk_shengwu .. TAG_relic_zuanshi .. "的额外效果中随机选择一个" .. "触发",
     flavor_text = "红石是科技的核心，也是爆炸的艺术",
     icon = DCEI.Texture("Perk_HongShi"),
     perk_type = "perk",
     rarity = "rare",
+    behavior = {
+        description = "全属性激增",
+        buff_bar_icon = DCEI.Texture("Perk_HongShi"),
+        modify_attributes = {
+            attack = 1,
+            energy_maximum = 1,
+            block = 1,
+            retaliate = 1,
+            income = 1,
+            health_per_second = 1,
+            energy_per_second = 1,
+            attack_speed = 0.01,
+            crit_chance = 0.01,
+            dodge_chance = 0.01,
+            luck = 0.01,
+            thorn_block = 0.01,
+            ultimate_damage = 0.01,
+        },
+        duration = 3,
+        is_positive = true,
+    },
 }, function(combat_unit)
     local name = "Perk_HongShi"
     combat_unit.Attack:RegisterOnMissileImpactCallback(name, function(level, attack_data, criminal, victim)
         -- 检查是否是TNT子弹命中
         if attack_data.missile_id == "Missile_TNT" then
             for i = 1, level do
-                -- 随机选择1-3之间的数字
-                local random_effect = math.random(1, 3)
+                -- 随机选择1-4之间的数字
+                local random_effect = math.random(1, 4)
                 
                 if random_effect == 1 then
                     for i = 1, level * 2 do
@@ -1431,31 +1470,43 @@ Api:RegisterPerk("Perk_HongShi", {
                         criminal:ModifyAttribute("health_per_second", 1, false)
                         end
                     end
-                    
-                else
+                elseif random_effect == 3 then
                     for i = 1, level * 2 do
                     -- 效果3：获得1%攻击速度
                     criminal:ModifyAttribute("attack_speed", 0.01, false)
+                    end
+                else
+                    for i = 1, level  do
+                    -- 效果4：自身全属性增加1或1%，持续3秒
+                    Api.PerkBehaviorSystem:ApplyPerkBehaviorToSelf(criminal, name)
                     end
                 end
             end
         end
     end)
 end)
+
 --黑火药
-Api:RegisterPerk("Perk_TNT_Power", {
-    id = "Perk_TNT_Power",
+Api:RegisterPerk("Perk_TNT_Attack", {
+    id = "Perk_TNT_Attack",
     display_name = "黑火药",
     description = "当" .. TAG_missile_tnt .. "命中时，额外给予你" .. "<color=#47b05d>".."1</color>"..Api.GameMechanicTags.TAG.attack,
-    flavor_text = "爆炸的力量！",
+    flavor_text = "一硝二磺三木炭！",
     icon = DCEI.Texture("Perk_TNT_Power"),
     perk_type = "perk",
     rarity = "rare",
+    behavior = {
+            description = "易燃易爆",
+            buff_bar_icon = DCEI.Texture("Perk_TNT_Power"),
+            duration = 999,
+            is_positive = true,
+            },
 }, function(combat_unit)
-    local name = "Perk_TNT_Power"
+    local name = "Perk_TNT_Attack"
     combat_unit.Attack:RegisterOnMissileImpactCallback(name, function(level, attack_data, criminal, victim)
         if attack_data.missile_id == "Missile_TNT" then
             for i = 1, level do
+                Api.PerkBehaviorSystem:ApplyPerkBehaviorToSelf(criminal, name)
                 combat_unit:ModifyAttribute("attack", 1, false)
             end
         end
@@ -1478,7 +1529,7 @@ Api:RegisterPerk("Perk_ErTiJiao", {
             local random = math.random(0, 1)
             if random < 0.5 then
                 for i = 1, level do
-                    combat_unit.Attack:NewMissileAttack(victim, "Missile_TNT")
+                    combat_unit.Attack:NewMissileAttack(victim, "Missile_TNT1")
                 end
             end
         end
@@ -1495,7 +1546,7 @@ Api:RegisterPerk("Relic_CustomSummon", {
     perk_type = "perk",
     flavor_text = "只要火药到位，跟谁干不是干",
      modify_attributes = {
-        summon_speed = 1.0,  -- 添加这一行，设置初始攻击速度为1.0
+        summon_speed = 0.5,  -- 添加这一行，设置初始攻击速度为1.0
     },
 }, function(combat_unit)
     local name = "Relic_CustomSummon"
@@ -1519,7 +1570,7 @@ Api:RegisterPerk("Relic_CustomSummon", {
         Api:RunTimer(function()
             local attack = {
                 attack_id = "attack_star",
-                damage = combat_unit:GetBoundedAttribute("attack") * 1.2,
+                damage = combat_unit:GetBoundedAttribute("attack") * 1.5,
                 attack_speed_key = "summon_speed",
                 hit_sound = DCEI.Sound("smh_keg_ultimate_impact"),
                 cache_key = "summons_data",
@@ -1544,8 +1595,8 @@ Api:RegisterMissile("attack_star", {
 -- 自定义属性，用于设置召唤物攻击速度
 Api:RegisterAttribute({
     id = "summon_speed",
-    display_name = "苦力怕小队 队员数量：",
-    description = "你当前雇佣的苦力怕数量",
+    display_name = "苦力怕小队",
+    description = "苦力怕每0.5秒发射一颗造成1.5倍"..Api.GameMechanicTags.TAG.attack.."伤害的TNT",
     icon = DCEI.Texture("Relic_CustomSummon"),
     display_type = Api.DisplayType.Float,
     is_neutral = true,
@@ -1637,6 +1688,52 @@ Api:RegisterPerk("Perk_EnergyOverload", {
         has_applied_debuff = false
     end)
 end)
+--钻石镐
+Api:RegisterPerk("Perk_Zuanshigao", {
+    id = "Perk_Zuanshigao",
+    display_name = "钻石镐",
+    description = "当你的" .. TAG_relic_zuanshi .. "命中敌人时，自身全属性加".."<color=#47b05d>".."1</color>".."或".."<color=#47b05d>".."1%</color>".."持续3秒",
+    flavor_text = "其实早就能人工制造了...",
+    icon = DCEI.Texture("Perk_Zuanshigao"),
+    perk_type = "perk",
+    rarity = "legendary",
+    behavior = {
+        description = "全属性激增",
+        buff_bar_icon = DCEI.Texture("Perk_Zuanshigao"),
+        modify_attributes = {
+            attack = 1,
+            energy_maximum = 1,
+            block = 1,
+            retaliate = 1,
+            income = 1,
+            health_per_second = 1,
+            energy_per_second = 1,
+            attack_speed = 0.01,
+            crit_chance = 0.01,
+            dodge_chance = 0.01,
+            luck = 0.01,
+            thorn_block = 0.01,
+            ultimate_damage = 0.01,
+ 
+        },
+        duration = 3,
+        is_positive = true,
+    },
+}, function(combat_unit)
+    local name = "Perk_Zuanshigao"
+    combat_unit.Attack:RegisterOnMissileImpactCallback(name, function(level, attack_data, criminal, victim)
+        -- 判断是否为指定子弹命中，此处默认为蜘蛛眼，可根据需求更改子弹ID
+        if attack_data.missile_id == "changpian" or attack_data.missile_id == "Missile_YanJing" then
+            for i = 1, level do
+                -- 对自身施加behavior中定义的属性增益
+                Api.PerkBehaviorSystem:ApplyPerkBehaviorToSelf(criminal, name)
+            end
+        end
+    end)
+end)
+
+
+
 
 
 
@@ -1654,7 +1751,7 @@ Api:RegisterPerk("Perk_Power_ZhuYan", {
         icon = DCEI.Texture("Missile_ZhuYan"),
         perk_type = "missile",
         rarity = "common",
-        flavor_text = "一般我都直接当垃圾扔了".."\n".." {===="..TAG_perk_shiwu..TAG_relic_zuanshi.."====}",
+        flavor_text = "一般我都直接当垃圾扔了".."\n".." {===="..TAG_perk_shiwu.."====}",
         attacks = {
             Missile_ZhuYan = 1,
             },
@@ -1846,7 +1943,124 @@ Api:RegisterPerk("Perk_Power_Zhu", {
             end 
         end   
         end)
-        end)    
+        end)  
+--烈焰弹补充包
+Api:RegisterPerk("Perk_Power_LieYanDan", {
+    id = "Perk_Power_LieYanDan",
+    display_name = "缚火仪式 ",
+    description = "获得"..TAG_missile_lieyandan.."\n造成30点伤害，每有".."<color=#47b05d>".."100</color>"..Api.GameMechanicTags.TAG.energy_regen.."额外造成".."<color=#47b05d>".."10</color>".."点伤害",
+    icon = DCEI.Texture("Missile_lieyandan"),
+    perk_type = "missile",
+    rarity = "epic", -- 可根据实际需求调整稀有度
+    flavor_text = "能量越充盈，打击越猛烈",
+    attacks = {
+        Missile_lieyandan = 1,
+    },
+})
+--末影之眼补充包
+Api:RegisterPerk("Perk_Power_YanJing", {
+    id = "Perk_Power_YanJing",
+    display_name = "凝视深渊",
+    description = "获得"..TAG_relic_end_eye.."\n造成".. "<color=#47b05d>".."300倍</color>" ..Api.GameMechanicTags.TAG.dodge_chance.."的伤害，每命中三次，在本场对战中获得1%闪避",
+    icon = DCEI.Texture("Missile_YanJing"),
+    perk_type = "missile",
+    rarity = "legendary",
+    flavor_text = "当你凝视深渊时，深渊也在凝视你".."\n".." {========="..TAG_relic_zuanshi.."=========}",
+    attacks = {
+        Missile_YanJing = 1,
+    },
+})
+--钻石剑补充包
+Api:RegisterPerk("Perk_Power_ZSJ", {
+    id = "Perk_Power_ZSJ",
+    display_name = "铸剑",
+    description = "获得"..TAG_missile_zsj.."\n造成你所有属性之和的伤害",
+    icon = DCEI.Texture("Missile_ZSJ"),
+    perk_type = "missile",
+    rarity = "legendary",
+    flavor_text = "曾经原版最强的王者，MC最著名的标志物之一".."\n".." {========="..TAG_perk_gongju.."=========}",
+    attacks = {
+        Missile_ZSJ = 1,
+    },
+})
+--草方块补充包
+Api:RegisterPerk("Perk_Power_caofangkuai", {
+    id = "Perk_Power_caofangkuai",
+    display_name = "搬方块",
+    description = "获得"..TAG_missile_caofangkuai.."\n造成等同于敌方最大生命值10%的伤害",
+    icon = DCEI.Texture("Missile_MaxHealthDmg"),
+    perk_type = "missile",
+    rarity = "legendary",
+    flavor_text = "曾经原版最强的王者，MC最著名的标志物之一".."\n".." {========="..TAG_perk_gongju.."=========}",
+    attacks = {
+        Missile_MaxHealthDmg = 1,
+    },
+})
+--全域打击
+Api:RegisterPerk("Perk_Power_AllInOne", {
+    id = "Perk_Power_AllInOne",
+    display_name = "全域打击",
+    description = "获取"..TAG_missile_zhizhuyan..TAG_missile_tnt..TAG_missile_gongjian..TAG_missile_changpian..TAG_perk_mianbao..TAG_missile_caofangkuai..TAG_missile_furou..TAG_missile_jinli..TAG_relic_end_eye..TAG_missile_lieyandan.."各一个",
+    icon = DCEI.Texture("Perk_Power_AllInOne"),
+    perk_type = "missile",
+    rarity = "legendary",
+    flavor_text = "流浪商人的终极补给包，一次性满足你所有的火力需求".."\n".." {========="..TAG_perk_hongshi.."=========}",
+    attacks = {
+        Missile_ZhuYan = 1,
+        Missile_TNT = 1,
+        Missile_GongJian = 1,
+        changpian = 1,
+        Missile_MianBao = 1,
+        Missile_MaxHealthDmg = 1,
+        furou = 1,
+        missile_jinding = 1,
+        Missile_YanJing = 1,
+        Missile_lieyandan = 1,
+    },
+})
+--不朽之躯
+Api:RegisterPerk("Perk_ImmortalBelow200k", {
+    id = "Perk_ImmortalBelow200k",
+    display_name = "不朽之躯",
+    description = "当生命值低于".."<color=red>".."200000</color>".."时，立即获得".."<color=#47b05d>".."200000</color>".."点最大生命值和".."<color=#47b05d>".."90%</color>".."闪避，".."<color=#47b05d>".."1000</color>".."点".. Api.GameMechanicTags.TAG.health_regen .."，持续5秒",
+    flavor_text = "在生死边缘，龙之血脉觉醒，赋予你短暂的绝对庇护",
+    icon = DCEI.Texture("Perk_ImmortalBelow5000"),
+    perk_type = "perk",
+    rarity = "legendary",
+    behavior = {
+        description = "不朽之躯",
+        buff_bar_icon = DCEI.Texture("Perk_ImmortalBelow5000"),
+        modify_attributes = {
+            health_maximum = 200000,
+            dodge_chance = 0.9,
+            health_per_second = 1000,
+        },
+        duration = 5,
+        is_positive = true,
+    },
+}, function(combat_unit)
+    local name = "Perk_ImmortalBelow200k"
+    local has_triggered = false
+    
+    -- 改为在子弹命中时检测
+    combat_unit.Attack:RegisterOnMissileImpactCallback(name, function(level, attack_data, criminal, victim)
+        -- 判断当前生命值是否低于200000且未触发过
+        if not has_triggered and combat_unit:GetCurrentHealth() < 200000 then
+            has_triggered = true
+            -- 对自身施加behavior中定义的属性增益
+            for i = 1, level do
+                Api.PerkBehaviorSystem:ApplyPerkBehaviorToSelf(combat_unit, name)
+            end
+        end
+    end)
+end)
+
+
+
+
+
+
+
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
 
@@ -1860,7 +2074,7 @@ Api:RegisterMissile("Missile_ZhuYan", {
         id = "Missile_ZhuYan",
         display_name = "蜘蛛眼",
         tip = "命中时给造成60%"..Api.GameMechanicTags.TAG.health_regen.."伤害,同时提供".."<color=#47b05d>".."1</color>"..Api.GameMechanicTags.TAG.health_regen,
-        flavor_text = "蛛蛛副产品，垃圾，炼金材料，弹药".."\n".." {========"..TAG_relic_zuanshi..TAG_perk_shiwu.."========}",
+        flavor_text = "蛛蛛副产品，垃圾，炼金材料，弹药".."\n".." {========"..TAG_perk_shiwu.."========}",
         icon = DCEI.Texture("Missile_ZhuYan"),
         missile = DCEI.SimpleUnit("COMBAT Missile Zhi_Zhu"),
         sounds = {
@@ -1884,7 +2098,7 @@ Api:RegisterMissile("Missile_ZhuYan", {
 Api:RegisterMissile("Missile_LongXi", {
 		id = "Missile_LongXi",
 		display_name = "龙息",
-        tip = "不会从弹夹发射，每秒对对手造成等同于25%" .. Api.GameMechanicTags.TAG.ultimate_damage.."的伤害",
+        tip = "对对手造成等同于25%" .. Api.GameMechanicTags.TAG.ultimate_damage.."的伤害",
         flavor_text = "其实是流浪商人拿手灌的".."\n".." {========="..TAG_relic_zuanshi.."=========}",
 		icon = DCEI.Texture("Missile_LongXi"),
 		missile = DCEI.SimpleUnit("COMBAT Missile Long Xi"),
@@ -1909,6 +2123,21 @@ Api:RegisterMissile("Missile_TNT", {
         flavor_text = "TNT能够解决许多问题，但不是所有".."\n".." {========="..TAG_perk_hongshi.."=========}",
         icon = DCEI.Texture("Missile_TNT"),
         missile = DCEI.SimpleUnit("COMBAT Missile Tnts"),
+        sounds = {
+            DCEI.Sound("tnt")
+        },
+        damage = function(attack_data, caster)
+            return 1.2 * caster:GetBoundedAttribute("attack")
+        end
+        })
+--挂鞭
+Api:RegisterMissile("Missile_TNT1", {
+        id = "Missile_TNT1",
+        display_name = "TNT",
+        tip = "造成".."<color=#47b05d>".."120%</color>"..Api.GameMechanicTags.TAG.attack.."伤害",
+        flavor_text = "TNT能够解决许多问题，但不是所有".."\n".." {========="..TAG_perk_hongshi.."=========}",
+        icon = DCEI.Texture("Missile_TNT"),
+        missile = DCEI.SimpleUnit("COMBAT Missile Tnts1"),
         sounds = {
             DCEI.Sound("tnt")
         },
@@ -2028,7 +2257,8 @@ Api:RegisterMissile("Missile_ZSJ", {
 Api:RegisterMissile("Missile_ZhuWang", {
         id = "Missile_ZhuWang",
         display_name = "蛛网",
-        tip = "造成30%"..Api.GameMechanicTags.TAG.health_regen.."伤害",
+        description = "造成30%"..Api.GameMechanicTags.TAG.health_regen.."伤害",
+        tip = "命中时降低1%攻击速度",
         flavor_text = "好黏啊，有剑就好了".."\n".." {========="..TAG_perk_hongshi.."=========}",
         icon = DCEI.Texture("Missile_ZhuWang"),
         missile = DCEI.SimpleUnit("COMBAT Missile Zhu_Wang"),
@@ -2045,7 +2275,7 @@ Api:RegisterMissile("Missile_YanJing", {
         id = "Missile_YanJing",
         display_name = "末影之眼",
         tip = "造成300倍"..Api.GameMechanicTags.TAG.dodge_chance.."的伤害，每三次命中在本场对战中获得1%闪避",
-        flavor_text = "孤将指引你的方向，保护你不收侵扰，前往终末之地".."\n".." {========="..TAG_perk_hongshi.."=========}",
+        flavor_text = "孤将指引你的方向，保护你不收侵扰，前往终末之地".."\n".." {========="..TAG_relic_zuanshi.."=========}",
         icon = DCEI.Texture("Missile_YanJing"),
         missile = DCEI.SimpleUnit("COMBAT Missile End_Eye"),
         sounds = {
@@ -2073,7 +2303,7 @@ Api:RegisterMissile("Missile_YanJing", {
 Api:RegisterMissile("Missile_Ji", {
 		id = "Missile_Ji",
 		display_name = "鸡",
-        tip = "不造成伤害,你的"..TAG_perk_shiwu.."每命中敌人150次，随机孵化一枚蛋（不可叠加）",
+        tip = "不造成伤害,你的"..TAG_perk_shiwu.."每命中敌人300次，随机孵化一枚蛋（不可叠加）",
         flavor_text = "咯咯咯咯，还想要金蛋，咯咯咯".."\n".." {========="..TAG_perk_shengwu.."=========}",
 		icon = DCEI.Texture("Missile_Ji"),
 		missile = DCEI.SimpleUnit("COMBAT Missile Ji"),
@@ -2169,7 +2399,7 @@ Api:RegisterMissile("Missile_DLKL", {
     end  
     })
 
---AI代码生成测试
+--代码测试
 --弓箭
 Api:RegisterMissile("Missile_GongJian", {
     id = "Missile_GongJian",
@@ -2235,6 +2465,59 @@ Api:RegisterMissile("Missile_Nu", {
         end
     end)
 end)
+--烈焰弹
+Api:RegisterMissile("Missile_lieyandan", {
+    id = "Missile_lieyandan",
+    display_name = "烈焰弹",
+    tip = "造成30点伤害，每有100点能量恢复，伤害增加10点",
+    flavor_text = "能量越充盈，打击越猛烈",
+    icon = DCEI.Texture("Missile_lieyandan"), -- 请确保资源文件夹中有对应贴图
+    missile = DCEI.SimpleUnit("COMBAT Missile lieyandan"), -- 请确保有对应的弹体单位
+    sounds = {
+        DCEI.Sound("chidongxi") -- 复用已有音效，也可自定义
+    },
+    damage = function(attack_data, caster)
+        -- 获取当前能量恢复
+        local energy_regen = caster:GetBoundedAttribute("energy_per_second")
+        -- 计算额外伤害：每100点能量恢复增加10点伤害
+        local extra_damage = math.floor(energy_regen / 100) * 10
+        -- 基础伤害30 + 额外伤害
+        return 30 + extra_damage
+    end
+})
+--草方块
+Api:RegisterMissile("Missile_MaxHealthDmg", {
+    id = "Missile_MaxHealthDmg",
+    display_name = "生命收割",
+    tip = "造成敌人10%最大生命值的伤害",
+    flavor_text = "无论你有多肉，在绝对的比例面前都不堪一击",
+    icon = DCEI.Texture("Missile_MaxHealthDmg"),
+    missile = DCEI.SimpleUnit("COMBAT Missile caofangkuai"),
+    sounds = {
+        DCEI.Sound("chidongxi")
+    },
+    damage = function(attack_data, caster)
+        -- 尝试在damage函数中计算10%最大生命值伤害
+        if target then
+            return 0.1 * target:GetBoundedAttribute("health_maximum")
+        end
+        return 0
+    end
+}, function(combat_unit)
+    local name = "Missile_MaxHealthDmg"
+    combat_unit.Attack:RegisterOnMissileImpactCallback(name, function(level, attack_data, caster, victim)
+        if attack_data.missile_id == "Missile_MaxHealthDmg" then
+            -- 确保命中时造成目标10%最大生命值的伤害
+            if victim then
+                local max_health = victim:GetBoundedAttribute("health_maximum")
+                local damage_amount = max_health * 0.1
+                victim:Damage(damage_amount, victim, {})
+            end
+        end
+    end)
+end)
+
+
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2255,17 +2538,17 @@ Api:RegisterBoss({
         ultimate_id = "BosUnlFu",
     },
     attributes = {
-        health_maximum = 3500,
+        health_maximum = 4500,
         attack = 35,
         energy_maximum = 2000,
         energy_per_second = 200,
     },
     perks = {
-        shinaozhe = 1,
         boss_furou = 2,
         boss_tudou = 2,
         boss_luobo = 2,
         boss_tieding = 2,
+        shinaozhe = 1,
     },
     lines = {
         battle_start = {
@@ -2311,16 +2594,16 @@ Api:RegisterBoss({
         ultimate_id = "BosUnlKu",
     },
     attributes = {
-        health_maximum = 4000,
-        attack = 24,
-        energy_maximum = 1400,
-        energy_per_second = 160,
+        health_maximum = 5200,
+        attack = 26,
+        energy_maximum = 1800,
+        energy_per_second = 120,
         ultimate_damage = 0.38,
     },
     perks = {
-        boss_changpian = 1,
+        boss_changpian = 2,
         huoyaohexin = 1,
-        Perk_Power_TNT = 6,
+        Perk_Power_TNT = 5,
         emergency_dodge = 5
     },
     lines = {
@@ -2421,47 +2704,49 @@ Api:RegisterBoss({
         ultimate_id = "BosUnlLie",
     },
     attributes = {
-        health_maximum = 3500,
+        health_maximum = 20000,
         attack = 35,
         energy_maximum = 2000,
-        energy_per_second = 200,
+        energy_per_second = 180,
     },
     perks = {
-        boss_furou = 2,
-        shinaozhe = 1,
-        boss_tudou = 2,
-        boss_luobo = 2,
-        boss_tieding = 2,
+        yanxunhuoliao = 1,
+        Perk_Power_LieYanDan = 6,
+        boss_changpian = 2,
+        boss_tudou = 1,
+        boss_luobo = 1,
+
+
     },
     lines = {
         battle_start = {
             {
-                "你有多的帽子吗？",
-                "太阳晒得我脑子痒",
+                "你在看哪里呢？嗯？",
+                "没找到我的原皮罢了，凑合一下",
             }
         },
         on_start = {
             {
                 "哦呜啊~",
-                "腐肉吃不吃",
+                "杂口~准备受死吧",
             }
         },
         on_ultimate = {
             {
-                "跳劈！",
-                "吃我一击吧",
+                "全部给我吞下去吧",
+                "嘿嘿嘿",
             }
         },
         on_win = {
             {
-                "铁套都没有",
-                "拿什么赢我？",
+                "真是杂鱼吗？",
+                "我还以为能玩的更开心一点呢",
             }
         },
         on_lose = {
             {
-                "走了，去南方",
-                "等会找人弄你",
+                "咦咦咦~唔唔齁齁~",
+                "不行了不行了，再继续的话就要...",
             }
         },
     }
@@ -2477,47 +2762,47 @@ Api:RegisterBoss({
         ultimate_id = "BosUnlZhenZhu",
     },
     attributes = {
-        health_maximum = 3500,
+        health_maximum = 100000,
         attack = 35,
         energy_maximum = 2000,
         energy_per_second = 200,
+        attack_speed = 0.8,
     },
     perks = {
-        boss_furou = 2,
-        shinaozhe = 1,
-        boss_tudou = 2,
-        boss_luobo = 2,
-        boss_tieding = 2,
+        Perk_Power_YanJing = 6,
+        Perk_DodgeResetHeal = 1,
+        Perk_Power_ZSJ = 1,
+        Perk_Power_caofangkuai = 2,
     },
     lines = {
         battle_start = {
             {
-                "你有多的帽子吗？",
-                "太阳晒得我脑子痒",
+                "...",
+                "受死",
             }
         },
         on_start = {
             {
-                "哦呜啊~",
-                "腐肉吃不吃",
+                "...",
+                "开始了",
             }
         },
         on_ultimate = {
             {
-                "跳劈！",
-                "吃我一击吧",
+                "...",
+                "开大",
             }
         },
         on_win = {
             {
-                "铁套都没有",
-                "拿什么赢我？",
+                "...",
+                "飞舞",
             }
         },
         on_lose = {
             {
-                "走了，去南方",
-                "等会找人弄你",
+                "...",
+                "牛逼",
             }
         },
     }
@@ -2533,47 +2818,50 @@ Api:RegisterBoss({
         ultimate_id = "BosUnlLongXi",
     },
     attributes = {
-        health_maximum = 300000,
-        attack = 35,
-        energy_maximum = 2000,
-        energy_per_second = 200,
+        health_maximum = 600000,
+        attack = 70,
+        health_per_second = 20,
+        attack_speed = 1.5,
+        energy_maximum = 1800,
+        energy_per_second = 400,
     },
     perks = {
-        boss_furou = 2,
-        shinaozhe = 1,
-        boss_tudou = 2,
-        boss_luobo = 2,
-        boss_tieding = 2,
+        Perk_Power_LongXi = 5,
+        attack_flex = 2,
+        Perk_Power_AllInOne = 1,
+        Perk_DodgeResetHeal = 4,
+        Perk_Power_YanJing = 4,
+        Perk_ImmortalBelow200k = 1,
     },
     lines = {
         battle_start = {
             {
-                "你有多的帽子吗？",
-                "太阳晒得我脑子痒",
+                "蝼蚁之辈，不屑与较。",
+                "降，以免皮肉之苦。",
+                
             }
         },
         on_start = {
             {
-                "哦呜啊~",
-                "腐肉吃不吃",
+                "汝竟能至此？实出吾意料之外。",
+                "也罢，便与汝一战，权当消遣。",
             }
         },
         on_ultimate = {
             {
-                "跳劈！",
-                "吃我一击吧",
+                "这一击，汝且接好！",
             }
         },
         on_win = {
             {
-                "铁套都没有",
-                "拿什么赢我？",
+                "意料之中",
+                "竖子小儿，欲屠龙乎？",
             }
         },
         on_lose = {
             {
-                "走了，去南方",
-                "等会找人弄你",
+                "卧槽！你没开我吃",
+                "今天手感不好，下次屎给你打出来",
             }
         },
     }
@@ -2814,11 +3102,11 @@ Api:RegisterMissile("tieding", {
 Api:RegisterPerk("boss_changpian", {
     id = "boss_changpian",
     display_name = "唱片",
-    description = "获得"..TAG_missile_changpian,
+    description = "获得"..TAG_missile_changpian.."\n造成30%的"..Api.GameMechanicTags.TAG.energy_regen.."伤害，命中时发射两个音符",
     icon = DCEI.Texture("changpian"),
     perk_type = "perk",
     rarity = "epic",
-    flavor_text = "罕见的唱片，在骷髅和苦力怕内讧时更易掉落".."\n".." {========="..TAG_relic_zuanshi.."=========}", 
+    flavor_text = "罕见的唱片，在骷髅和苦力怕内讧时更易掉落".."\n".." {====="..TAG_relic_zuanshi.."=====}", 
     attacks = {
         changpian = 1,
         }, 
@@ -2826,16 +3114,16 @@ Api:RegisterPerk("boss_changpian", {
 ----------------------------------------------------
 Api:RegisterMissile("changpian", {
     id = "changpian",
-    display_name = "铁锭",
-    tip = "造成50%的"..Api.GameMechanicTags.TAG.energy_regen.."命中时发射两个音符",
-    flavor_text = "音乐的力量，小子",
+    display_name = "唱片",
+    tip = "造成30%的"..Api.GameMechanicTags.TAG.energy_regen.."伤害，命中时发射两个音符",
+    flavor_text = "音乐的力量，小子".." {========="..TAG_relic_zuanshi.."=========}",
     icon = DCEI.Texture("changpian"),
     missile = DCEI.SimpleUnit("COMBAT Missile ChangPian"),
     sounds = {
         DCEI.Sound("chidongxi")
     },
     damage = function(attack_data, caster)
-        return 0.5*caster:GetBoundedAttribute("energy_per_second")
+        return 0.3*caster:GetBoundedAttribute("energy_per_second")
     end
     },function (combat_unit)
     local name = "changpian"
@@ -3016,7 +3304,68 @@ Api:RegisterPerk("taojin", {
 		        end
         end) 
     end)
+--烟熏火燎
+Api:RegisterPerk("yanxunhuoliao", {
+    id = "yanxunhuoliao", 
+    display_name = "烟熏火燎",
+    description = "获得等同于".."<color=#47b05d>".."1%</color>"..Api.GameMechanicTags.TAG.energy_regen.."的"..Api.GameMechanicTags.TAG.health_regen..",烈焰弹命中时获得".."<color=#47b05d>".."1</color>".."点"..Api.GameMechanicTags.TAG.energy_regen, 
+    flavor_text = "烟熏火燎！",  --temp
+    icon = DCEI.Texture("yanxunhuoliao"),
+    perk_type = "perk",
+    rarity = "legendary",
+},function (combat_unit)
+    local name = "yanxunhuoliao"
 
+
+    combat_unit.Attack:RegisterOnMissileImpactCallback(name, function(level, attack_data, caster, target)
+        -- 实时获取当前能量恢复与生命恢复
+        local current_energy_regen = combat_unit:GetBoundedAttribute("energy_per_second")
+        local current_health_regen = combat_unit:GetBoundedAttribute("health_per_second")
+        
+        -- 计算目标生命恢复（能量恢复的1%）与当前生命恢复的差值
+        local target_health_regen = current_energy_regen * 0.01
+        local health_diff = target_health_regen - current_health_regen
+        
+        -- 补齐差额，确保生命恢复始终精准等同于能量恢复的1%
+        combat_unit:ModifyAttribute("health_per_second", health_diff, false)
+        
+        -- 烈焰弹命中时的原有逻辑
+        if attack_data.missile_id == "lie_yan_dan" then
+            target.run_instance:ModifySavedPerkDataAttributes("energy_regen", 1)
+        end
+
+        -- 新增逻辑：当蜘蛛眼命中时获得1点能量恢复
+        if attack_data.missile_id == "Missile_lieyandan" then
+            combat_unit:ModifyAttribute("energy_per_second", 1, false)
+        end
+    end)
+end)
+--虚空疗愈
+Api:RegisterPerk("Perk_DodgeResetHeal", {
+    id = "Perk_DodgeResetHeal",
+    display_name = "虚空疗愈",
+    description = "每当你的闪避达到".."<color=#47b05d>".."90%</color>".."或更多时，将闪避清零并获得".."<color=#47b05d>".."5000</color>".."点最大生命值",
+    flavor_text = "极致的闪避不过是另一种形式的硬抗",
+    icon = DCEI.Texture("Perk_DodgeResetHeal"),
+    perk_type = "perk",
+    rarity = "legendary",
+}, function(combat_unit)
+    local name = "Perk_DodgeResetHeal"
+    combat_unit.Attack:RegisterOnMissileImpactCallback(name, function(level, attack_data, criminal, victim)
+        -- 获取当前闪避几率
+        local current_dodge = criminal:GetBoundedAttribute("dodge_chance")
+        -- 判断闪避是否大于等于0.9 (即90%)
+        if current_dodge >= 0.9 then
+            for i = 1, level do
+                -- 将闪避清零 (减去当前实时的闪避值)
+                combat_unit:ModifyAttribute("dodge_chance", -0.9, false)
+                combat_unit:ModifyAttribute("health_maximum", 5000, false)
+            end
+        end
+    end)
+end)
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3112,11 +3461,12 @@ Api:CopyCharacter("naysayer", {
         icon_high_resolution = DCEI.Texture("steve_large"),
         unit = DCEI.Unit("COMBAT Unit Steve Character"),
         attributes = {
-        health_maximum = 2200,          --hp
-        energy_maximum = 2000,          --最大能量
+        health_maximum = 2100,          --hp
+        energy_maximum = 2100,          --最大能量
         energy_per_second = 120,         --能量恢复
         attack = 20,
         attack_speed = 1.0,                    --力量
+        dodge_chance = 0.0,
         --专门来测试属性的
         -- health_maximum = 80000,          --hp
         -- dodge_chance = 0.9,          --闪避
@@ -3160,6 +3510,8 @@ Api:CopyCharacter("naysayer", {
          "Missile_TNT",
          "Missile_MianBao",
          "Missile_GongJian",
+         "changpian",
+         --"Missile_MaxHealthDmg",
          --测试弹匣
          --"Missile_Nu", 
          --"Missile_GongJian",
@@ -3208,12 +3560,15 @@ Api:CopyCharacter("naysayer", {
                    --
                    "Perk_HongShi", 
                    --TNT
-                   "Perk_TNT_Power", 
+                   "Perk_TNT_Attack", 
                    "Perk_ErTiJiao",
                    --
                    "Relic_CustomSummon", 
                    "Perk_FoodBioHit", 
                    "Perk_EnergyOverload", 
+                   --
+                   "Perk_Power_LieYanDan",
+                   "Perk_Zuanshigao",
                 },
             ------------------------------原能力组
                 {
@@ -3238,7 +3593,7 @@ Api:CopyCharacter("naysayer", {
                 --"recruit_band_quest",--组建乐队
                 --"bonus_music_note",--升调
                 --闪避相关
-                "dodge",--闪避
+                --"dodge",--闪避
                 "energy_on_dodge",--虫舞
                 --"dodge_on_crit_quest",--阴阳调和
                 "brain_on_dodge",--明镜止水
@@ -3271,7 +3626,7 @@ Api:CopyCharacter("naysayer", {
             },
                 })
 --Boss池
-Api:SetCampaignBossPool("Steve", {
+Api:SetCampaignBossPool("Steve", {  
         "my_boss_zombie",
         "my_boss_kulipa",
         "my_boss_zhuling",
